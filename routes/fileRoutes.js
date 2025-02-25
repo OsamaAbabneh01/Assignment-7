@@ -73,7 +73,7 @@ router.post("/append", async (req, res) => {
   }
   
   catch(err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "file not found" });
   }
 });
 
