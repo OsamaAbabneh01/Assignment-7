@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* a19090 */
+        body {
+            background-color:#ffffff;
+        }
+
+        * {
+            text-align: center;
+        }
+        div {
+            border-top: 1px solid #fff;
+            padding: 30px 0;
+            margin: 10px 0;
+        }
+        section {
+            padding-top: 5px;
+            margin-bottom: 60px;
+            background-color: #456838;
+        }
+        button {
+            padding: 10px 30px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgb(61, 113, 226);
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        textarea {
+            display: block;
+            margin: 10px auto;
+            height: 90px;
+            width: 500px;
+            text-align: left;
+            padding: 5px;
+            resize: vertical;
+            background-color: #fff;
+        }
+        input {
+            display: block;
+            margin: 10px auto;
+            border-radius: 5px;
+            border: 0;
+            width: 200px;
+            height: 30px;
+            text-align: left;
+            padding: 0 8px;
+            background-color: #fff;
+        }
+        h1 {
+            margin-bottom: 60px;
+            padding-top: 30px;
+            font-size: 40px;
+        }
+        h1 span {
+            display: inline-block;
+            background-color: #456838;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        button:active{
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <h1><span>File Manager</span></h1>
+    <section>
+        <h2>Read File</h2>
+        <input id="filename" type="text" placeholder="Enter your file name">
+        <button onclick="readFile()">Read File</button>
+        <div id="readFileResponse"></div>
+    </section>
+    <section>
+        <h2>Write To File</h2>
+        <input id="filename-write" type="text" placeholder="Enter your file name">
+        <textarea name="" id="content-write" placeholder="Enter your content..."></textarea>
+        <button type="button" id="writeButton">Write To File</button>
+        <div id="writeFileResponse"></div>
+    </section>
+    <section>
+        <h2>Append To File</h2>
+        <input id="filename-append" type="text" placeholder="Enter your file name">
+        <textarea name="" id="content-append" placeholder="Enter your content..."></textarea>
+        <button onclick="appendToFile()" type="button">Append To File</button>
+        <div id="appendFileResponse"></div>
+    </section>
+    <section>
+        <h2>Delete File</h2>
+        <input id="filename-delete" type="text" placeholder="Enter your file name">
+        <button onclick="deleteFile()">Delete File</button>
+        <div id="deleteFileResponse"></div>
+    </section>
+    <section>
+        <h2>Rename File</h2>
+        <input id="oldFileName" type="text" placeholder="Enter your old file name">
+        <input id="newFileName" type="text" placeholder="Enter your new file name">
+        <button onclick="renameFile()">Rename</button>
+        <div id="renameFileResponse"></div>
+    </section>
+    <script src="./script.js"></script>
+</body>
+</html>
