@@ -1,7 +1,9 @@
 const express = require("express");
-const fs = require("fs").promises;
+const fs = require("fs");
+const fsp = require("fs").promises;
 const path = require("path");
 const mammoth = require("mammoth");
+const { Document, Packer, Paragraph, TextRun } = require("docx");
 
 const router = express.Router();
 const getFilePath = (fileName) => path.join(__dirname, "..", "storage", path.basename(fileName));
@@ -14,10 +16,9 @@ router.get("/read", async (req, res) => {
     return res.status(400).json({ error: "Only docx files are allowed" });
   
   try {
-    let data = await fs.readFile(getFilePath(req.query.fileName));
-    let result = await mammoth.extractRawText({ buffer: data });
-    result = result.value;
-    return res.status(200).json({ content: result });
+    let data = await fsp.readFile(getFilePath(req.query.fileName));
+    let result = await mammoth.extractRawText({buffer:data});
+    return res.status(200).json({ content: result.value });
   } 
   
   catch 
@@ -26,19 +27,25 @@ router.get("/read", async (req, res) => {
   }
 });
 
-router.post("/write", async (req, res) => {
-  if (!req.body.fileName)
-    return res.status(400).json({ error: "filename is required" });
+router.post("/write", (req, res) => {
+    if (!req.body.fileName)
+        return res.status(400).json({ error: "filename is required" });
 
-  if (path.extname(req.body.fileName).toLowerCase() !== ".docx")
-    return res.status(400).json({ error: "Only docx files are allowed" });
+    if (path.extname(req.body.fileName).toLowerCase() !== ".docx")
+        return res.status(400).json({ error: "Only docx files are allowed" });
 
-  try {
-    await fs.writeFile(getFilePath(req.body.fileName), req.body.content);
-    res.status(201).json({ message: "data was writen successfully" });
-  } 
+    try 
+    {
+        const doc = new Document({
+            sections:[{properties:{}, children:[new Paragraph({children:[new TextRun(req.body.content)]})]}]
+        });
+        Packer.toBuffer(doc).then((buffer) => {
+            fs.writeFileSync(getFilePath(req.body.fileName), buffer);
+            res.json({message:"File write successfully"});
+        });
+    } 
   
-  catch (err) {
+  catch {
     res.status(500).json({ error: "error when write in file" });
   }
 });
@@ -50,13 +57,23 @@ router.post("/append", async (req, res) => {
   if (path.extname(req.body.fileName).toLowerCase() !== ".docx")
     return res.status(400).json({error: "Only docx files are allowed"});
 
-  try {
-    await fs.appendFile(getFilePath(req.body.fileName),`\n${req.body.content}`);
-    res.status(201).json({ message: "data was updated successfully" });
-  } 
+  try 
+  {
+    let data = await fsp.readFile(getFilePath(req.body.fileName));
+    let result = await mammoth.extractRawText({buffer:data});
+    const doc = new Document({
+      sections:[{properties:{}, children:[new Paragraph({children:[new TextRun(result.value)]}),
+      new Paragraph({children:[new TextRun(req.body.content)]})
+    ]}]
+      });
+      Packer.toBuffer(doc).then((buffer) => {
+          fs.writeFileSync(getFilePath(req.body.fileName), buffer);
+          res.json({message:"File write successfully"});
+      });
+  }
   
-  catch {
-    res.status(500).json({ error: "error when append into file" });
+  catch(err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -70,7 +87,7 @@ router.put("/rename", async (req, res) => {
         return res.status(400).json({ error: "Only docx files are allowed" });
 
     try {
-        await fs.rename(getFilePath(oldName), getFilePath(newName));
+        await fsp.rename(getFilePath(oldName), getFilePath(newName));
         res.json({ message: "file renamed successfully" });
     } 
     
@@ -90,11 +107,11 @@ router.delete("/delete", async (req, res) => {
 
   try 
   {
-    await fs.rm(getFilePath(fileName));
+    await fsp.rm(getFilePath(fileName));
     return res.json({ message: "file deleted successfully" });
   } 
   
-  catch 
+  catch
   {
     return res.status(500).json({ error: "file not found" });
   }
